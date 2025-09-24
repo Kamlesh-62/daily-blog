@@ -80,3 +80,5 @@ yarn-error.log*
 .vscode/
 
 jsconfig.json
+.next
+/roadmap

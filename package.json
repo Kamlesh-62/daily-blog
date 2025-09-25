@@ -16,10 +16,12 @@
     "@mui/material-nextjs": "^7.3.2",
     "@reduxjs/toolkit": "^2.9.0",
     "axios": "^1.12.2",
+    "formik": "^2.4.6",
     "next": "15.5.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "react-redux": "^9.2.0"
+    "react-redux": "^9.2.0",
+    "yup": "^1.7.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

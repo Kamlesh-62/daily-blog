@@ -2,7 +2,7 @@
 
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v13-appRouter";
-import {metroPhobic, theme} from "@/theme";
+import { theme} from "@/theme";
 import "@/styles/globals.css";
 
 export default function RootLayout({
@@ -12,7 +12,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" >
-      <body className={metroPhobic.className}>
+      <body>
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>
           <ThemeProvider theme={theme}>
             <CssBaseline />

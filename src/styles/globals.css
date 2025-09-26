@@ -1,2 +1,13 @@
 @import "tailwindcss/theme";
 @import "tailwindcss/utilities";
+
+ul {
+    list-style: none;
+}
+
+li {
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+    cursor: pointer;
+}

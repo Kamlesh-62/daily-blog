@@ -106,7 +106,7 @@ export default function Page(): JSX.Element {
                             <ContainedButton
                                 type="submit"
                                 disabled={formik.isSubmitting || !formik.isValid}
-                                className="w-full mt-6 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full mt-6 py-2 px-4 bg-black text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {formik.isSubmitting ? 'Logging in...' : 'Login'}
                             </ContainedButton>

@@ -1,9 +1,9 @@
 "use client";
-
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v13-appRouter";
-import { theme} from "@/theme";
-import "@/styles/globals.css";
+import StoreProvider from "./StoreProvider";
+import { theme } from "@/theme";
+import "../styles/globals.css";
 
 export default function RootLayout({
   children,
@@ -13,10 +13,12 @@ export default function RootLayout({
   return (
     <html lang="en" >
       <body>
-        <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+        <AppRouterCacheProvider options={{ key: "mui", prepend: true, enableCssLayer: true }}>
           <ThemeProvider theme={theme}>
             <CssBaseline />
-            <main>{children}</main>
+            <StoreProvider>
+              <main >{children}</main>
+            </StoreProvider>
           </ThemeProvider>
         </AppRouterCacheProvider>
       </body>

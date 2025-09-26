@@ -3,52 +3,82 @@ import React, { JSX } from 'react';
 import { useFormik, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import { InputField } from "@/components/ui/inputField/inputField";
-import {ContainedButton} from "@/components/ui//buttons/buttons";
+import {ContainedButton, OutlinedButton} from "@/components/ui//buttons/buttons";
+import Image from 'next/image';
+import { handleSignInWithGoogle } from '@/libs/supabase/loginActions';
+// importing assets
+import googleLogo from '@/assets/login/google.png';
+
 type LoginValues = {
     email: string;
     password: string;
 }
 
 export default function Page(): JSX.Element {
-
-    // 1. Initial values for the form fields
     const initialValues: LoginValues = {
         email: '',
         password: ''
     };
-
-    // 2. Validation schema using Yup
+    
     const validationSchema = Yup.object({
         email: Yup.string().email('Invalid email address').required('Email is required'),
         password: Yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
     });
-
-    // 3. Form submission handler
+    
     const handleSubmit = (values: LoginValues, { setSubmitting }: FormikHelpers<LoginValues>) => {
         console.log('Form data', values);
-
+        
     };
-
-    // 4. useFormik hook to manage form state, validation, and submission
+    
     const formik = useFormik<LoginValues>({
         initialValues,
         validationSchema,
         onSubmit: handleSubmit,
     });
 
+    const handleSignInWithGoogleFun = async () => {
+        try {
+            const result = await handleSignInWithGoogle();
+            if (result?.error) {
+                console.error("Google sign-in error:", result?.error.message);
+            }
+            if(result?.data?.url){
+                window.location.href = result?.data?.url
+            }
+        } catch (err) {
+            console.error("Error signing in:", err);
+        }
+    };
+    
 
     return (
-        <section className="flex justify-center items-center min-h-screen bg-gray-100">
-            <div className="flex justify-center items-center">
+        <section className="flex justify-center items-center min-h-screen">
+            <div className="flex justify-center items-center ">
                 <div className="p-8 bg-white rounded-lg shadow-md w-full max-w-md">
-                    <div className="text-center mb-6">
+                    <div className="mb-6">
                         <h1 className="text-2xl font-bold text-gray-800">Login</h1>
                         <p className="text-gray-500">Hi, Welcome back 👋</p>
+                    </div>
+                    <div className="my-4 ">
+                        <OutlinedButton type="button" className="flex items-center justify-center w-full" onClick={handleSignInWithGoogleFun}>
+                            <Image src={googleLogo} alt="Google Logo" width={20} height={20} />
+                            <span className="ml-2">Login with Google</span>
+                        </OutlinedButton>
+                    </div>
+                    <div className="my-4 ">
+                        <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t"></span>
+                            </div>
+                            <div className="relative flex justify-center text-xs uppercase">
+                                <span className="bg-white px-2 text-gray-500">Or continue with email</span>
+                            </div>
+                        </div>
                     </div>
                     <div>
                         {/* The form's onSubmit is now handled by formik.handleSubmit */}
                         <form onSubmit={formik.handleSubmit} noValidate>
-                            <div className="space-y-4">
+                            <div>
                                 {/* Each InputField is now connected to Formik's state */}
                                 <InputField
                                     label="Email"

@@ -28,6 +28,7 @@ export function InputField({
 
     return (
         <TextField 
+            size='small'
             fullWidth
             variant="outlined"
             label={label}

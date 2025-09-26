@@ -24,8 +24,8 @@ export const theme = createTheme({
         body: {
           margin: 0,
           backgroundImage: `linear-gradient(
-          rgba(255, 255, 255, 0.3),
-          rgba(255, 255, 255, 0.1)
+          rgba(255, 255, 255, 0.7),
+          rgba(255, 255, 255, 0.7)
           ), url(${bg.src})`,
           backgroundSize: "cover",
           backgroundPosition: "center",

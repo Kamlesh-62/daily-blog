@@ -4,6 +4,7 @@ import { AppRouterCacheProvider } from "@mui/material-nextjs/v13-appRouter";
 import StoreProvider from "./StoreProvider";
 import { theme } from "@/theme";
 import "../styles/globals.css";
+import { AuthProvider } from "@/components/Provider/AppAuthenticatorProvider";
 
 export default function RootLayout({
   children,
@@ -17,7 +18,9 @@ export default function RootLayout({
           <ThemeProvider theme={theme}>
             <CssBaseline />
             <StoreProvider>
-              <main >{children}</main>
+              <AuthProvider>
+                <main >{children}</main>
+              </AuthProvider>
             </StoreProvider>
           </ThemeProvider>
         </AppRouterCacheProvider>

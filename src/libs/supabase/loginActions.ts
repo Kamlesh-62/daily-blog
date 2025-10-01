@@ -3,47 +3,90 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/libs/supabase/server";
-import { AuthError, OAuthResponse } from "@supabase/supabase-js";
+import {
+  OAuthResponse,
+} from "@supabase/supabase-js";
 
-export async function login(formData: FormData) {
+// types
+type LoginValues = {
+  email: string;
+  password: string;
+};
+
+// service
+export async function loginWithEmailAndPassword(
+  payload: LoginValues
+): Promise<{ success: boolean; message?: string }> {
   const supabase = await createClient();
+  const response = await supabase.auth.signInWithPassword(payload);
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-  };
+  if (response.error) {
+    if (response.error.code === "invalid_credentials") {
+      const { data: providers, error: rpcError } = await supabase.rpc(
+        "get_providers_for_email",
+        { p_email: payload?.email }
+      );
 
-  const { error } = await supabase.auth.signInWithPassword(data);
+      if (rpcError) {
+        return { success: false, message: rpcError.message };
+      }
 
-  if (error) {
-    redirect("/error");
+      if (providers?.includes("email")) {
+        return {
+          success: false,
+          message:
+            "Invalid Password. Please check your password and try again.",
+        };
+      } else if (providers?.includes("google")) {
+        return {
+          success: false,
+          message:
+            "This account was created with Google. Please sign in with Google.",
+        };
+      }
+    }
+    return { success: false, message: response.error.message };
   }
 
-  revalidatePath("/", "layout");
-  redirect("/");
+  return { success: true };
 }
 
-export async function signup(formData: FormData) {
+export async function signupWithEmailAndPassword(
+  payload: LoginValues
+): Promise<{ success: boolean; message?: string }> {
   const supabase = await createClient();
+  const response = await supabase.auth.signUp(payload);
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-  };
+  if (response.error) {
+    if (response.error.code === "user_already_exists") {
+      const { data: providers, error: rpcError } = await supabase.rpc(
+        "get_providers_for_email",
+        { p_email: payload?.email }
+      );
 
-  const { error } = await supabase.auth.signUp(data);
+      if (rpcError) {
+        return { success: false, message: rpcError.message };
+      }
 
-  if (error) {
-    redirect("/error");
+      if (providers && providers.includes("email")) {
+        return {
+          success: false,
+          message:
+            "This email is already registered with email. Please sign in with email.",
+        };
+      } else if (providers && providers.includes("google")) {
+        return {
+          success: false,
+          message:
+            "This account was created with Google. Please sign in with Google.",
+        };
+      }
+    }
+    return { success: false, message: response.error.message };
   }
-
-  revalidatePath("/", "layout");
-  redirect("/");
+  return { success: true };
 }
+
 export async function HandleSignOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
@@ -51,33 +94,20 @@ export async function HandleSignOut() {
   redirect("/");
 }
 
-export async function handleSignInWithGoogle(): Promise<OAuthResponse | null> {
-  try {
-    const supabase = await createClient();
+export async function handleSignInWithGoogle(): Promise<OAuthResponse> {
+  const supabase = await createClient();
 
-    console.log(
-      process.env.NEXT_PUBLIC_AUTH_CALLBACK_BASE_URL,
-      "process.env.NEXT_PUBLIC_AUTH_CALLBACK_BASE_URL"
-    );
-    const response = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: process.env.NEXT_PUBLIC_AUTH_CALLBACK_BASE_URL,
-      },
-    });
+  const response = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: process.env.NEXT_PUBLIC_AUTH_CALLBACK_BASE_URL,
+    },
+  });
 
-    if (response.error) {
-      console.error("Google sign-in error:", response?.error.message);
-      throw new Error(response?.error.message);
-    }
-
-    return response;
-  } catch (err) {
-    if (err instanceof Error) {
-      console.error("Unexpected error during Google sign-in:", err.message);
-      throw err;
-    }
-    console.error("Unknown error during Google sign-in:", err);
-    throw new Error("Unknown error during Google sign-in");
+  if (response.error) {
+    console.error("Google sign-in error:", response.error.message);
+    throw new Error(response.error.message);
   }
+
+  return response;
 }

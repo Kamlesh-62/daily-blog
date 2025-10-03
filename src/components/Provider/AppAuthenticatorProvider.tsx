@@ -1,19 +1,33 @@
-'user client';
-import Cookies from "js-cookie";
-import React, {useEffect, ReactNode } from 'react';
-import { useAppDispatch, useAppSelector } from "../../libs/store/hooks";
-import { setIsAuthenticated } from "../../libs/store/auth/authSlice";
+// app/providers/AuthProvider.client.tsx
+'use client';
+
+import React, { useEffect, ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAppDispatch } from '@/libs/store/hooks';
+import { setIsAuthenticated } from '@/libs/store/auth/authSlice';
+import { BrowserClient } from '@/libs/supabase/client';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const dispatch = useAppDispatch();
+    const router = useRouter();
 
-    const token = Cookies.get("sb-logged-in");
-    const isAuthenticated = token === "1";
     useEffect(() => {
-        dispatch(setIsAuthenticated(isAuthenticated));
-    }, [isAuthenticated]);
+        const supabase = BrowserClient();
 
-    return(
-        <>{children}</>        
-    )
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            dispatch(setIsAuthenticated(!!session));
+        });
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            dispatch(setIsAuthenticated(!!session));
+            router.refresh(); 
+        });
+
+        // 3) Cleanup
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, [dispatch, router]);
+
+    return <>{children}</>;
 }
